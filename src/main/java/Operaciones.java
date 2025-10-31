@@ -18,10 +18,59 @@ public class Operaciones {
             crearProfesorYAsignatura(conn,
                     new Asignatura("Defensa Contra las Artes Oscuras", "3C",true),
                     new Profesor("Minerva","McGonagall", LocalDate.of(1956,9,1)));
+            System.out.println();
+            Estudiante selena = new Estudiante("Selena", "Shade", 4, LocalDate.parse("2007-05-23"));
+            funcionMatricularEstudiante(conn, selena);
+            System.out.println();
+
+            Estudiante theo = new Estudiante("Theo", "Blackthorn", 3, LocalDate.parse("2008-10-11"));
+            procedimientoMatricularEstudiante(conn, theo);
+            System.out.println();
+
+            System.out.println("Todos los ejercicios ejecutados correctamente.");
         } catch (SQLException e) {
         System.err.println("Error al conectar a la base de datos: " + e.getMessage());
         }
     }
+    public static void procedimientoMatricularEstudiante(Connection conn, Estudiante estudiante) {
+        String sql = "CALL crear_estudiante(?::VARCHAR, ?::VARCHAR, ?::DATE, ?::INT)";
+        try (CallableStatement cstmt = conn.prepareCall(sql)) {
+            cstmt.setString(1, estudiante.getNombre());
+            cstmt.setString(2, estudiante.getApellido());
+            cstmt.setDate(3, Date.valueOf(estudiante.getFechaNacimiento()));
+            cstmt.setInt(4, estudiante.getAnyoCurso());
+            cstmt.execute();
+            System.out.println("Procedimiento crear_estudiante ejecutado con éxito.");
+        } catch (SQLException e) {
+            System.err.println("Error al ejecutar el procedimiento crear_estudiante: " + e.getMessage());
+        }
+    }
+    public static void funcionMatricularEstudiante(Connection conn, Estudiante estudiante) {
+        String sql = "SELECT * FROM matricular_estudiante(?::VARCHAR, ?::VARCHAR, ?::DATE, ?::INT)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, estudiante.getNombre());
+            pstmt.setString(2, estudiante.getApellido());
+            pstmt.setDate(3, Date.valueOf(estudiante.getFechaNacimiento()));
+            pstmt.setInt(4, estudiante.getAnyoCurso());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("=== Resultado función matricular_estudiante ===");
+                ResultSetMetaData md = rs.getMetaData();
+                int cols = md.getColumnCount();
+                while (rs.next()) {
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 1; i <= cols; i++) {
+                        if (i > 1) sb.append(" | ");
+                        sb.append(md.getColumnLabel(i)).append(": ").append(rs.getString(i));
+                    }
+                    System.out.println(sb);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al ejecutar la función matricular_estudiante: " + e.getMessage());
+        }
+    }
+
     private static int crearProfesorYAsignatura(Connection conn, Asignatura asignatura, Profesor profesor){
         int idGenerado = -1;  // Para almacenar el ID del nuevo profesor
         try {

@@ -2,11 +2,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.time.LocalDate;
 
-
 @Data
 @AllArgsConstructor
-public class Profesor {
+public class Estudiante {
     private String nombre;
     private String apellido;
-    private LocalDate fechaInicio;
+    private int anyoCurso;
+    private LocalDate fechaNacimiento;
 }
