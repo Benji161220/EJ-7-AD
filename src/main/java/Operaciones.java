@@ -3,6 +3,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.Properties;
 
 public class Operaciones {
@@ -12,19 +13,17 @@ public class Operaciones {
     // Cargar las propiedades de conexión
     public static void main(String[] args) {
         loadDatabaseProperties();
-        Asignatura asignatura = new Asignatura();
-        Profesor profesor = new Profesor();
+        Asignatura asignatura = new Asignatura("Arte Muggle","2A",false);
+        Profesor profesor = new Profesor("Albus","Dumbledore",LocalDate.of(2025,10,31));
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             crearProfesorYAsignatura(conn, asignatura, profesor);
         } catch (SQLException e) {
         System.err.println("Error al conectar a la base de datos: " + e.getMessage());
-    }
-
+        }
     }
     private static void crearProfesorYAsignatura(Connection conn, Asignatura asignatura, Profesor profesor){
 
     }
-
     private static void loadDatabaseProperties() {
         Properties properties = new Properties();
         try (InputStream input = Operaciones.class.getClassLoader().getResourceAsStream("db.properties")) {
